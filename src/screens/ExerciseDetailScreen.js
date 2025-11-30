@@ -8,6 +8,13 @@ export default function ExerciseDetailScreen({ route, navigation }) {
 
     return (
         <View style={styles.container}>
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => navigation.navigate("Home")}
+            >
+                <Text style={styles.backButtonText}>← Back to Home</Text>
+            </TouchableOpacity>
+
             <Text style={styles.title}>{item.name}</Text>
 
             <LottieView
