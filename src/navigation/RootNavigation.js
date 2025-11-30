@@ -1,22 +1,26 @@
+import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import { useAuth } from "../auth/AuthContext";
+import AppNavigator from "./AppNavigator";
+import SignupScreen from "../screens/SignupScreen";
 import LoginScreen from "../screens/LoginScreen";
-import HomeScreen from "../screens/HomeScreen";
-import ExerciseListScreen from "../screens/ExerciseListScreen";
-import ExerciseDetailScreen from "../screens/ExerciseDetailScreen";
-import TimerScreen from "../screens/TimerScreen";
-import FavoritesScreen from "../screens/FavoritesScreen"
 
 const Stack = createStackNavigator();
 
 export default function RootNavigator() {
+  const { user } = useAuth()
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Exercises" component={ExerciseListScreen} />
-      <Stack.Screen name="ExerciseDetail" component={ExerciseDetailScreen} />
-      <Stack.Screen name="Timer" component={TimerScreen} />
-      <Stack.Screen name="Favorites" component={FavoritesScreen} />
+      {!user ? (
+        // render only if user is not present
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
+        </>
+      ) : (
+        <Stack.Screen name="App" component={AppNavigator} />
+      )}
     </Stack.Navigator>
   );
 }

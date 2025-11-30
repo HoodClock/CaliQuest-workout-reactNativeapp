@@ -2,23 +2,30 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { authService } from '../auth/authService';
 
-export default function LoginScreen({ navigation }) {
+export default function SignupScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSignIn = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
+  const handleSignUp = async () => {
+    if (!email || !password || !displayName) {
+      Alert.alert('Error', 'Please fill all fields');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
       return;
     }
 
     setLoading(true);
-    const result = await authService.signIn(email, password);
+    const result = await authService.signUp(email, password, displayName);
     setLoading(false);
 
     if (result.success) {
-      // navigation.navigate('Home');
+      Alert.alert('Success', 'Account created successfully!');
+      navigation.navigate('Home');
     } else {
       Alert.alert('Error', result.error);
     }
@@ -26,7 +33,15 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome Back</Text>
+      <Text style={styles.title}>Create Account</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Full Name"
+        value={displayName}
+        onChangeText={setDisplayName}
+        autoCapitalize="words"
+      />
 
       <TextInput
         style={styles.input}
@@ -47,20 +62,20 @@ export default function LoginScreen({ navigation }) {
 
       <TouchableOpacity 
         style={[styles.button, loading && styles.buttonDisabled]} 
-        onPress={handleSignIn}
+        onPress={handleSignUp}
         disabled={loading}
       >
         <Text style={styles.buttonText}>
-          {loading ? 'Signing In...' : 'Sign In'}
+          {loading ? 'Creating Account...' : 'Sign Up'}
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={styles.linkButton}
-        onPress={() => navigation.navigate('Signup')}
+        onPress={() => navigation.navigate('Login')}
       >
         <Text style={styles.linkText}>
-          Don't have an account? Sign Up
+          Already have an account? Sign In
         </Text>
       </TouchableOpacity>
     </View>

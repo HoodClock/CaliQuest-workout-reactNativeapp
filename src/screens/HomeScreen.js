@@ -19,6 +19,13 @@ export default function HomeScreen({ navigation }) {
       >
         <Text style={styles.buttonText}>My Favorites</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.button, styles.secondaryButton]}
+        onPress={() => navigation.navigate("Profile")}
+      >
+        <Text style={styles.buttonText}>My Profile</Text>
+      </TouchableOpacity>
     </View>
   );
 }

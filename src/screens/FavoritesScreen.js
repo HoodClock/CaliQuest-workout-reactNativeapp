@@ -2,22 +2,29 @@ import React, { useState, useEffect } from "react";
 import { View, FlatList, StyleSheet, Text, TouchableOpacity } from "react-native";
 import exercises from "../data/exercises";
 import ExerciseCard from "../components/ExerciseCard";
-import { favoritesService } from "../utils/favoritesService";
-
+import { useAuth } from "../auth/AuthContext";
+import { favoritesService } from "../auth/favroitesServices";
 
 export default function FavoritesScreen({ navigation }) {
     const [favoriteExercises, setFavoriteExercises] = useState([]);
+    const { user } = useAuth();
 
     useEffect(() => {
-        loadFavorites();
-    }, []);
+        if (user) {
+            loadFavorites();
+        }
+    }, [user]);
 
     const loadFavorites = async () => {
-        const favoriteIds = await favoritesService.getFavorites();
-        const favExercises = exercises.filter(exercise =>
-            favoriteIds.includes(exercise.id)
-        );
-        setFavoriteExercises(favExercises);
+        if (!user) return;
+        
+        const result = await favoritesService.getFavorites(user.uid);
+        if (result.success) {
+            const favExercises = exercises.filter(exercise =>
+                result.favorites.includes(exercise.id)
+            );
+            setFavoriteExercises(favExercises);
+        }
     };
 
     const handleExercisePress = (item, index) => {
@@ -27,11 +34,23 @@ export default function FavoritesScreen({ navigation }) {
         });
     };
 
+    if (!user) {
+        return (
+            <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Please sign in to view favorites</Text>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => navigation.navigate("Home")}
+                >
+                    <Text style={styles.backButtonText}>← Back to Home</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
     if (favoriteExercises.length === 0) {
         return (
             <View style={styles.emptyContainer}>
-
-
                 <Text style={styles.emptyText}>No favorite exercises yet!</Text>
                 <Text style={styles.emptySubtext}>
                     Tap the heart icon on exercises to add them to favorites
@@ -48,7 +67,6 @@ export default function FavoritesScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-
             <Text style={styles.header}>Favorite Exercises</Text>
 
             <FlatList
@@ -102,5 +120,15 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: "#666",
         textAlign: 'center'
+    },
+    backButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        marginBottom: 10,
+    },
+    backButtonText: {
+        fontSize: 16,
+        color: "#111",
+        fontWeight: "600",
     },
 });
